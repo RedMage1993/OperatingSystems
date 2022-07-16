@@ -1,0 +1,1 @@
+While c is logically correct, b is more correct for the project.

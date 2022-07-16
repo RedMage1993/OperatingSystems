@@ -1,0 +1,195 @@
+Page Replacement Algorithms
+---------------------------
+
+LRU (Least recently used)
+	Implemented in hardware
+	-----------------------
+
+	for n pages/frames
+	(n x n ) bits
+
+5 pages
+-------
+
+  0 1 2 3 4
+0 0 0 0 0 0
+1 0 0 0 0 0
+2 0 0 0 0 0
+3 0 0 0 0 0
+4 0 0 0 0 0
+
+'refer to page 3'
+
+  0 1 2 3 4
+0 0 0 0 0 0
+1 0 0 0 0 0
+2 0 0 0 0 0
+3 1 1 1 0 1
+4 0 0 0 0 0
+
+'refer to page 2'
+
+  0 1 2 3 4
+0 0 0 0 0 0
+1 0 0 0 0 0
+2 1 1 0 1 1
+3 1 1 0 0 1
+4 0 0 0 0 0
+
+'refer to page 4'
+
+  0 1 2 3 4
+0 0 0 0 0 0
+1 0 0 0 0 0
+2 1 1 0 1 0
+3 1 1 0 0 0
+4 1 1 1 1 0 <- max value
+
+Rule: Replace the page with the least binary row value.
+
+---------------------------------------------------------------
+
+LRU in Software
+---------------
+
+	uses history registers
+	register/variable per page
+
+Page	0: 0 0 0 0 0 0 0 0
+	1: 0 0 0 0 0 0 0 0 
+	2: 0 0 0 0 0 0 0 0
+	.
+	.
+	.
+
+(hardware)
+----------
+
+R bit for every page
+Page is referred i set its R bits to 1.
+---------------------------------------
+
+Software Timer
+--------------
+	reads the R bits
+	R bits of pages 0 and 2 are set to 1
+	Shift all register by + 1
+	only for the referenced pages i
+		add 1 to the MSB of the register
+
+so far looks like:
+
+Page	0: 1 0 0 0 0 0 0 0
+	1: 0 0 0 0 0 0 0 0 
+	2: 1 0 0 0 0 0 0 0
+	.
+	.
+	.
+
+	clear all R bits to 0
+
+Rule: replace the page with the lowest binary value.
+----------------------------------------------------------------
+
+Paging Scheme
+-------------
+
+Program is divided into pages (fixed size).
+
+Segmentation scheme
+-------------------
+
+Program is divided into segments.
+
+Segment: a logical partition
+	every function/procedure is a segment.
+
+Sites are variable.
+
+Segment mapping
+---------------
+	Seg 0 -> SMT -> main memory (free partition)
+
+PMT: Pages are of the same size. But no size field.
+
+SMT: Segments are of variable size. So one extra field for segment size.
+-------------------------------------------------------------------------
+
+Scheme that uses SMT and PMT which allows better utilization of memory and
+bypass fragmentation.
+
+------------------------------
+
+
+
+Deadlocks
+---------
+
+	R1
+P1		P2
+	R2
+
+R1 allocated to P1. Arrow from R1 to P1.
+R2 allocated to P2.
+P1 requests R2.
+R2 is not available and P1 must wait. Arrow from P1 to R2.
+P2 requests R1.
+R1 is not available and P2 must wait.
+Both P1 and P2 wait forever.
+Deadlock.
+
+---
+
+Four necessary conditions for deadlock to occur:
+
+1) Mutual exclusion
+2) Hold & wait has to be allowed
+3) No preemption
+4) Circular waiting
+
+Now imagine two units of resources of R2.
+
+So if single unit resources, then the four conditions are sufficient.
+
+----
+
+Multiple units => they are not sufficient as they are only some of the
+necessary conditions.
+
+--------------------------
+
+
+If a cycle of resources has arrows going out, then it is not a KNOT.
+
+"Reachability set"
+if members of cycle's reachabilty set are equal to others reachability set then knot.
+The arrows are important. If arrows pointing out, then reachable otherwise not.
+
+Cycle does NOT imply deadlock.
+Knot implies deadlock.
+
+--------------------------------------------------
+
+Banker's Algorithm
+------------------ p's are customers
+	Algorithm ensures staying in safe state (satisfy all procs eventually),
+	unsafe implies POSSIBILITY of deadlock.
+
+	Allocation is number of resources of (A, b or c) currently used by proc
+	Max is maximum needed. So remainder/need is max - allocation.
+
+	Allocation	Max		Available	Need = Max - Alloc
+	----------	---		---------	------------------
+	A  B  C		A  B  C		A  B  C		A  B  C
+	------------------------------------------------------------------
+p0	0  1  0		7  5  3		3  3  2	      |	7  4  3		   p0
+p1	2  0  0		3  2  2			      | 1  2  2		   p1
+p2	3  0  2		9  0  2			      | 6  0  0		   p2
+p3    	2  1  1 	2  2  2			      | 0  1  1		   p3
+p4  	0  0  2		4  3  3			      | 4  3  1		   p4
+
+So what can run depends on what is needed and what is available. When proc
+completes, then we add to available what's been used.
+
+If you ever find that you cannot complete, then it is unsafe.
+

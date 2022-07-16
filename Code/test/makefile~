@@ -1,0 +1,3 @@
+# for test.c
+test : test.o
+	gcc 

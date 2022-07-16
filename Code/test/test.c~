@@ -1,0 +1,36 @@
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <string.h>
+
+int main()
+{
+    pid_t pid;
+    int com[2];
+    char *command[10];
+    int status;
+
+    pipe(com);
+    dup(0); // stdin at 5
+    dup(1); // stdout at 6
+
+    command[0] = (char*) "ls";
+    command[1] = NULL;
+
+    close(1);
+    dup(com[1]);
+
+    pid = fork();
+    if (pid == 0)
+    {
+	execvp(command[0], command);
+	return 0; // error
+    }
+    else
+	waitpid(pid, status&, WUNTRACED);
+
+    
+
+    return 0;
+}
